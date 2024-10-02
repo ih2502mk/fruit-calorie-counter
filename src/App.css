@@ -1,0 +1,28 @@
+#root {
+  display: flex;
+  width: calc(100vw - 4rem);
+  max-width: 860px;
+  margin: auto;
+  flex-direction: row;
+  align-items: start;
+  padding: 2rem;
+}
+
+#root > section {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  width: 50%;
+  justify-content: stretch;
+  height: calc(100vh - 4rem);
+}
+
+#root > section > h2 {
+  width: 100%;
+  text-align: center;
+}
+
+#root > section > .container {
+  width: 100%;
+  overflow-y: auto;
+}
