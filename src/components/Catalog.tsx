@@ -1,10 +1,16 @@
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { CatalogFruitItem, FRUIT_GROUPING_PROPS, FruitGroupingProps } from "../App"
 import { List, ListItem } from "./List"
+import { Table, TableHeaderRow, TableRow, TableRowGroupHeader } from "./Table";
 
-type CatalogProps = {
-    items: CatalogFruitItem[],
-    onPickItems: (items: CatalogFruitItem[]) => void
+const COLUMN_KEYS = ['name', 'family', 'order', 'genus'];
+const COLUMN_HEADERS = {
+    name: 'Name',
+    family: 'Family',
+    order: 'Order',
+    genus: 'Genus',
+    calories: 'Calories',
+    actions: ''
 }
 
 function capitalize(str: string) {
@@ -13,7 +19,7 @@ function capitalize(str: string) {
 
 type GroupedItems = Record<string, CatalogFruitItem[]>;
 
-function groupItemsBy(items: CatalogFruitItem[], grouping: FruitGroupingProps) {
+function groupItems(items: CatalogFruitItem[], grouping: FruitGroupingProps) {
     
     const uniqueGroups = [...(new Set(items.map(item => item[grouping])))]; 
 
@@ -26,8 +32,13 @@ function groupItemsBy(items: CatalogFruitItem[], grouping: FruitGroupingProps) {
     return groupedItems
 }
 
-function groupingPredicate(items: CatalogFruitItem[] | GroupedItems): items is GroupedItems {
+function isGroupedItems(items: CatalogFruitItem[] | GroupedItems): items is GroupedItems {
     return !Array.isArray(items);
+}
+
+type CatalogProps = {
+    items: CatalogFruitItem[],
+    onPickItems: (items: CatalogFruitItem[]) => void
 }
 
 export function Catalog({ items, onPickItems }: CatalogProps) {
@@ -36,20 +47,21 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
         | GroupedItems
     >(items);
     const [grouping, setGrouping] = useState<FruitGroupingProps | 'none'>('none');
+    const [viewMode, setViewMode] = useState<'list' | 'table'>('list');
 
     useEffect(() => {
         if (grouping === 'none') {
             setDisplayItems(items);
         } else {
-            setDisplayItems(groupItemsBy(items, grouping));
+            setDisplayItems(groupItems(items, grouping));
         }
     }, [grouping, items])
 
-    let list: React.ReactNode;
+    let catalogOutput: ReactNode;
 
-    if (groupingPredicate(displayItems)) {
+    if (viewMode === 'list' && isGroupedItems(displayItems)) {
 
-        list = <List className="catalog">
+        catalogOutput = <List className="catalog">
             {Object.entries<CatalogFruitItem[]>(displayItems).map(([group, groupItems]) => 
                 <ListItem key={group}>
                     {group}
@@ -68,9 +80,9 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
             )}
         </List>
         
-    } else {
+    } else if (viewMode === 'list' && !isGroupedItems(displayItems)) {
 
-        list = <List className="catalog">
+        catalogOutput = <List className="catalog">
             {items.map(item => 
                 <ListItem key={item.id}>
                     {item.name} ({item.nutritions.calories}) 
@@ -78,6 +90,66 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
                 </ListItem>
             )}
         </List>
+
+    } else if (viewMode === 'table' && isGroupedItems(displayItems)) {
+        let rows: ReactNode[] = [];
+
+        rows.push(<TableHeaderRow
+            key={`header-row`}
+            columnKeys={[...COLUMN_KEYS, 'calories', 'actions']}
+            columnHeaders={COLUMN_HEADERS}
+        />)
+
+        for (const [group, groupItems] of Object.entries<CatalogFruitItem[]>(displayItems)) {
+            rows.push(<TableRowGroupHeader 
+                key={`group-header-${group}`}
+                columnKeys={[...COLUMN_KEYS, 'calories', 'actions']} 
+                groupItem={{ 
+                    name: group, 
+                    actions: () => (<button 
+                        onClick={() => onPickItems(groupItems)}
+                    >Add {groupItems.length} fruit to Jar</button>)
+                }}
+                />
+            );
+
+            for (const item of groupItems) {
+                rows.push(<TableRow 
+                    key={item.id} 
+                    item={item} 
+                    columnKeys={[
+                        ...COLUMN_KEYS, 
+                        () => item.nutritions.calories,
+                        () => <button onClick={() => onPickItems([item])}>Add to Jar</button>
+                    ]} 
+                    idKey='id'
+                />)
+            }
+        }
+        
+        catalogOutput = <Table>{rows}</Table>
+    } else {
+        let rows: ReactNode[] = [];
+
+        rows.push(<TableHeaderRow
+            key={`header-row`}
+            columnKeys={[...COLUMN_KEYS, 'calories', 'actions']}
+            columnHeaders={COLUMN_HEADERS}
+        />)
+
+        for (const item of displayItems as CatalogFruitItem[]) {
+            rows.push(<TableRow 
+                key={`row-${item.id}`}
+                item={item} 
+                columnKeys={[
+                    ...COLUMN_KEYS, 
+                    () => item.nutritions.calories,
+                    () => <button onClick={() => onPickItems([item])}>Add to Jar</button>
+                ]}
+                idKey='id'
+            />)
+        }
+        catalogOutput = <Table>{rows}</Table>
     }
     
     return <>
@@ -86,7 +158,8 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
             <select 
                 name="grouping" 
                 value={grouping} 
-                onChange={(e) => setGrouping(e.target.value as FruitGroupingProps)}
+                onChange={(e) => 
+                    setGrouping(e.target.value as FruitGroupingProps | 'none')}
             >
                 <option value="none">None</option>
                 {FRUIT_GROUPING_PROPS.map(p => 
@@ -94,8 +167,32 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
                 )}
             </select>
         </label>
+        <div>
+            View as:&nbsp;
+            <label>    
+                List 
+                <input 
+                    type="radio" 
+                    name="view" 
+                    value="list" 
+                    checked={viewMode === 'list'}
+                    onChange={(e) => setViewMode(e.target.value as 'list' | 'table')}
+                />
+            </label>
+            &nbsp;
+            <label>
+                Table
+                <input 
+                    type="radio"
+                    name="view"
+                    value="table"
+                    checked={viewMode === 'table'} 
+                    onChange={(e) => setViewMode(e.target.value as 'list' | 'table')}
+                />
+            </label>
+        </div>
         <div className="container">
-            {list}
+            {catalogOutput}
         </div>
     </>
 }

@@ -1,6 +1,5 @@
 import { PropsWithChildren } from "react"
 
-
 type ListProps = {
     className?: string
 }

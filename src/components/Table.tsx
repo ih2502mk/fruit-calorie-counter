@@ -1,4 +1,4 @@
-import { PropsWithChildren } from "react"
+import { PropsWithChildren, ReactNode } from "react"
 
 
 type TableProps = {
@@ -14,14 +14,70 @@ export function Table({ className, children }: PropsWithChildren<TableProps>) {
     </table>
 }
 
-export function TableRow({ children }: { children: React.ReactNode }) {
-    return <tr>{children}</tr>
+function getItemValueByColumnKey(columnKey: string | ((item: any) => string | ReactNode), item: any) {
+    if (typeof columnKey === 'function') {
+        return columnKey(item);
+    } else {
+        return item[columnKey];
+    }
 }
 
-export function TableRowHeader({ children }: { children: React.ReactNode }) {
-    return <tr>{children}</tr>
+type TableRowItem<IdKey extends string = 'id'> = 
+    & { [key: string]: any } 
+    & { [id in IdKey]: number | string };
+
+export type TableRowProps<
+    IdKey extends string = 'id', 
+    T extends TableRowItem<IdKey> = TableRowItem<IdKey>
+> = {
+    item: T,
+    columnKeys: Array<string | ((item:T) => string | ReactNode)>, 
+    idKey?: IdKey
 }
 
-export function TableRowGroupHeader({ children }: { children: React.ReactNode }) {
-    return <tr>{children}</tr>
+export function TableRow<
+    T extends TableRowItem, 
+    IdKey extends string = 'id'
+>({ item, columnKeys, idKey }: TableRowProps<IdKey, T>) {
+    if (!idKey) {
+        return <tr >
+            {columnKeys.map(k => <td>{getItemValueByColumnKey(k, item)}</td>)}
+        </tr>
+    } else {
+        return <tr key={item[idKey]}>
+            {columnKeys.map(k => <td key={`${item[idKey]}-${k}`}>
+                {getItemValueByColumnKey(k, item)}
+            </td>)}
+        </tr>
+    }
+}
+
+export type TableHeaderRowProps = {
+    columnKeys: string[],
+    columnHeaders: { [key in TableHeaderRowProps['columnKeys'][number]]: string }
+}
+
+export function TableHeaderRow({ columnKeys, columnHeaders }:TableHeaderRowProps) {
+    return <tr>
+        {columnKeys.map(key => <th key={`${key}-header`}>{columnHeaders[key]}</th>)}
+    </tr>
+}
+
+export type TableRowGroupHeaderProps = {
+    columnKeys: string[],
+    groupItem: { name: string, 'actions'?: () => string | ReactNode }
+}
+
+export function TableRowGroupHeader({columnKeys, groupItem}: TableRowGroupHeaderProps) {
+    let span = columnKeys.length;
+    let cells = [];
+    if (columnKeys.indexOf('actions') !== -1 && groupItem.actions) { 
+        cells.push(<td key={`actions-${groupItem.name}`}>{groupItem.actions()}</td>);
+        span--;
+    }
+    cells = [
+        <td key={`group-header-${groupItem.name}`} colSpan={span}>{groupItem.name}</td>, 
+        ...cells
+    ];
+    return <tr>{cells}</tr>
 }
