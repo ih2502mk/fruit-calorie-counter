@@ -1,20 +1,29 @@
 #root {
   display: flex;
   width: calc(100vw - 4rem);
-  max-width: 860px;
+  max-width: 1280px;
   margin: auto;
   flex-direction: row;
   align-items: start;
   padding: 2rem;
+
+  --catalog-width: 60%;
 }
 
 #root > section {
   display: flex;
   flex-direction: column;
   align-items: start;
-  width: 50%;
   justify-content: stretch;
   height: calc(100vh - 4rem);
+}
+
+#root > section:first-child {
+  width: var(--catalog-width);
+}
+
+#root > section:last-child {
+  width: calc(100% - var(--catalog-width));  
 }
 
 #root > section > h2 {
@@ -25,4 +34,78 @@
 #root > section > .container {
   width: 100%;
   overflow-y: auto;
+}
+
+.message {
+  align-self: center;
+  margin: auto;
+}
+
+.highlighted {
+  background-color: rgb(220, 239, 251);
+}
+
+.donut-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  min-height: 200px;
+  position: relative;
+}
+
+.donut-label {
+  position: absolute;
+  top: 70px;
+  transition: top 0.125s ease-out, padding-top 0.125s ease-out;
+}
+
+.donut-label.has-highlight {
+  top: 58px;
+}
+
+.donut-label > span {
+  display: block;
+  text-align: center;
+}
+
+.donut-label > .total-text {
+  font-size: 0.6rem;
+}
+
+.donut-label > .total-value {
+  font-size: 1.8rem;
+  line-height: 100%;
+  font-weight: bold;
+  letter-spacing: -1px;
+  padding-top: 0.3rem;
+}
+
+.donut-label.has-highlight > .total-value {
+  padding-top: 0;
+}
+
+.donut-label > hr {
+  margin: 0.2rem 0;
+  border-style: none;
+  border-top: 1px solid #ccc;
+  width: 88px;
+}
+
+.donut-label > .hl-name {
+  font-size: 0.6rem;
+}
+
+.donut-label > .hl-value {
+  font-weight: bold;
+  letter-spacing: -1px;
+}
+
+.swatch {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  display: inline-block;
+  vertical-align: middle;
 }

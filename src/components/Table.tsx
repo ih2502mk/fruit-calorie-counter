@@ -7,9 +7,7 @@ type TableProps = {
 
 export function Table({ className, children }: PropsWithChildren<TableProps>) {
     return <table className={className}>
-        <thead>
-            
-        </thead>
+        <thead></thead>
         <tbody>{children}</tbody>
     </table>
 }
@@ -71,7 +69,7 @@ export type TableRowGroupHeaderProps = {
 export function TableRowGroupHeader({columnKeys, groupItem}: TableRowGroupHeaderProps) {
     let span = columnKeys.length;
     let cells = [];
-    if (columnKeys.indexOf('actions') !== -1 && groupItem.actions) { 
+    if (columnKeys.includes('actions') && groupItem.actions) { 
         cells.push(<td key={`actions-${groupItem.name}`}>{groupItem.actions()}</td>);
         span--;
     }

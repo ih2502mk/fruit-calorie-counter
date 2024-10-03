@@ -59,20 +59,24 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
 
     let catalogOutput: ReactNode;
 
+    const addToJarButton = (items: CatalogFruitItem[], group = false) => (
+        group 
+            ? <button onClick={() => onPickItems(items)}>Add {items.length} fruit to Jar</button>
+            : <button onClick={() => onPickItems(items)}>Add to Jar</button>
+        )
+
     if (viewMode === 'list' && isGroupedItems(displayItems)) {
 
         catalogOutput = <List className="catalog">
             {Object.entries<CatalogFruitItem[]>(displayItems).map(([group, groupItems]) => 
                 <ListItem key={group}>
                     {group}
-                    <button 
-                        onClick={() => onPickItems(groupItems)}
-                    >Add {groupItems.length} fruit to Jar</button>
+                    {addToJarButton(groupItems, true)}
                     <List className="catalog-group">
                         {groupItems.map(item => 
                             <ListItem key={item.id}>
                                 {item.name} ({item.nutritions.calories}) 
-                                <button onClick={() => onPickItems([item])}>Add to Jar</button>
+                                {addToJarButton([item])}
                             </ListItem>
                         )}
                     </List>
@@ -86,13 +90,13 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
             {items.map(item => 
                 <ListItem key={item.id}>
                     {item.name} ({item.nutritions.calories}) 
-                    <button onClick={() => onPickItems([item])}>Add to Jar</button>
+                    {addToJarButton([item])}
                 </ListItem>
             )}
         </List>
 
     } else if (viewMode === 'table' && isGroupedItems(displayItems)) {
-        let rows: ReactNode[] = [];
+        const rows: ReactNode[] = [];
 
         rows.push(<TableHeaderRow
             key={`header-row`}
@@ -106,12 +110,9 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
                 columnKeys={[...COLUMN_KEYS, 'calories', 'actions']} 
                 groupItem={{ 
                     name: group, 
-                    actions: () => (<button 
-                        onClick={() => onPickItems(groupItems)}
-                    >Add {groupItems.length} fruit to Jar</button>)
+                    actions: () => addToJarButton(groupItems, true)
                 }}
-                />
-            );
+            />)
 
             for (const item of groupItems) {
                 rows.push(<TableRow 
@@ -120,7 +121,7 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
                     columnKeys={[
                         ...COLUMN_KEYS, 
                         () => item.nutritions.calories,
-                        () => <button onClick={() => onPickItems([item])}>Add to Jar</button>
+                        () => addToJarButton([item])
                     ]} 
                     idKey='id'
                 />)
@@ -129,7 +130,7 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
         
         catalogOutput = <Table>{rows}</Table>
     } else {
-        let rows: ReactNode[] = [];
+        const rows: ReactNode[] = [];
 
         rows.push(<TableHeaderRow
             key={`header-row`}
@@ -144,7 +145,7 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
                 columnKeys={[
                     ...COLUMN_KEYS, 
                     () => item.nutritions.calories,
-                    () => <button onClick={() => onPickItems([item])}>Add to Jar</button>
+                    () => addToJarButton([item])
                 ]}
                 idKey='id'
             />)

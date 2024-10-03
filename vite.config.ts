@@ -1,10 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import injectHTML from 'vite-plugin-html-inject'
 
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    injectHTML(),
+    react()
+  ],
   server: {
     proxy: {    
       '/fruit-api': {

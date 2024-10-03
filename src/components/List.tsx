@@ -8,6 +8,16 @@ export function List({ className, children }: PropsWithChildren<ListProps>) {
     return <ul className={className}>{children}</ul>
 }
 
-export function ListItem({ children }: { children: React.ReactNode }) {
-    return <li>{children}</li>
+type ListItemProps = {
+    className?: string
+    onMouseOver?: () => void
+    onMouseOut?: () => void
+}
+
+export function ListItem({ className, onMouseOver, onMouseOut, children }: PropsWithChildren<ListItemProps>) {
+    return <li 
+        className={className}
+        onMouseOver={onMouseOver}
+        onMouseOut={onMouseOut}
+    >{children}</li>
 }

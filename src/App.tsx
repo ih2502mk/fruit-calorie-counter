@@ -1,8 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
+import './App.css';
+
 import { Catalog } from './components/Catalog';
 import { Jar } from './components/Jar';
+import { Donut } from './components/Donut';
 
-import './App.css';
+import jarStore from './jar.store';
 
 export const FRUIT_GROUPING_PROPS = ['family', 'order', 'genus'] as const;
 
@@ -16,41 +19,24 @@ export type CatalogFruitItem = {
   [K in FruitGroupingProps]: string
 }
 
-export class JarItem {
-  constructor(
-    public name: string, 
-    public count: number, 
-    public fruitItemId: CatalogFruitItem['id']
-  ) {}
-}
+async function getAllFruit() {
+  const res = await fetch('/fruit-api/fruit/all');
+  const data = await res.json();
+  
+  if (data.error) {
+    throw new Error(data.error);
+  }
 
-function getAllFruit() {
-  return fetch('/fruit-api/fruit/all')
-    .then((response) => response.json())
-    .then((data) => data);
+  return data;
 }
 
 function App() {
   const [fruitItems, setFruitItems] = useState<CatalogFruitItem[]>([]);
-  const [jarItems, setJarItems] = useState<JarItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const addItemsToJar = useCallback((items: CatalogFruitItem[]) => {
-    const fruitIdsInTheJar = jarItems.map(jarItem => jarItem.fruitItemId);
-    let updatedJarItems = [...jarItems];
+  const {jarFruitItems} = useSyncExternalStore(jarStore.subscribe, jarStore.getJarState);
 
-    for (const item of items) {
-      if (fruitIdsInTheJar.includes(item.id)) {
-        const jarItem = updatedJarItems.find(jarItem => jarItem.fruitItemId === item.id);
-        jarItem && jarItem.count++;
-      } else {
-        updatedJarItems.push(new JarItem(item.name, 1, item.id)); 
-      }
-    }
-    setJarItems(updatedJarItems)
-  }, [jarItems])
-  
   useEffect(() => {
     setLoading(true);
     
@@ -63,18 +49,29 @@ function App() {
 
   return (
     <>
-      {loading && <p>Loading...</p>}
-      {error && <p>Error: {error.message}</p>}
       <section>
         <h2>Fruit Catalog</h2>
-        <Catalog 
-          items={fruitItems} 
-          onPickItems={(items) => addItemsToJar(items)} 
-        />
+        {
+          fruitItems.length > 0 
+            ? <Catalog 
+                items={fruitItems} 
+                onPickItems={(items) => jarStore.addItemsToJar(items)} 
+              />
+            : <>
+                {loading && <p className="message">Loading...</p>}
+                {error && <p className="message">Error: {error.message}</p>}
+              </>
+        }
       </section>
       <section>
         <h2>Fruit Jar</h2>
-        <Jar items={jarItems} />
+        {
+          jarFruitItems.length > 0 
+            ? <><Donut /><Jar /></> 
+            : <p className="message">
+                No fruit in the jar. Please, add something.
+              </p>
+        }
       </section> 
     </>
   );
