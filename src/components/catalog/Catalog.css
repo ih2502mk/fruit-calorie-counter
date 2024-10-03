@@ -1,0 +1,12 @@
+.catalog-controls {
+    padding: 0.3rem 1.2rem;
+}
+
+.catalog-controls>span,
+.catalog-controls>label:not(:has([type=radio])) {
+    font-weight: bold;
+}
+
+.catalog-controls>label:first-child {
+    margin-right: 1.2rem;
+}

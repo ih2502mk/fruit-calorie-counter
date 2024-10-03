@@ -1,6 +1,8 @@
 import * as d3 from "d3";
-import jarStore, { JarItem, JarState } from "../jar.store"
 import { useSyncExternalStore } from "react";
+import './Donut.css'
+
+import jarStore, { JarItem, JarState } from "../jar/jar.store"
 
 export function Donut() {
 

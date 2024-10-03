@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { CatalogFruitItem } from "./App";
+import { CatalogFruitItem } from "../../App";
 
 export class JarItem {
     public fruitItemId: CatalogFruitItem['id'];

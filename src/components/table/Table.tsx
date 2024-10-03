@@ -1,4 +1,5 @@
 import { PropsWithChildren, ReactNode } from "react"
+import './Table.css'
 
 
 type TableProps = {
@@ -7,7 +8,6 @@ type TableProps = {
 
 export function Table({ className, children }: PropsWithChildren<TableProps>) {
     return <table className={className}>
-        <thead></thead>
         <tbody>{children}</tbody>
     </table>
 }

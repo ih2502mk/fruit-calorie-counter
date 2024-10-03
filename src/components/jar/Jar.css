@@ -1,0 +1,35 @@
+.highlighted {
+    background-color: rgb(220, 239, 251);
+}
+
+.swatch {
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+ul.jar {
+    margin-top: 2.4rem;
+}
+
+ul.jar li .actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+ul.jar li .actions > .count {
+    display: inline-block;
+    min-width: 2rem;
+    text-align: center;
+    text-overflow: ellipsis;
+}
+
+ul.jar li .actions > button:last-child  {
+    margin-left: 0.6rem;
+}

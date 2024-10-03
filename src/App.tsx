@@ -1,11 +1,11 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import './App.css';
 
-import { Catalog } from './components/Catalog';
-import { Jar } from './components/Jar';
-import { Donut } from './components/Donut';
+import { Catalog } from './components/catalog/Catalog';
+import { Jar } from './components/jar/Jar';
+import { Donut } from './components/donut/Donut';
 
-import jarStore from './jar.store';
+import jarStore from './components/jar/jar.store';
 
 export const FRUIT_GROUPING_PROPS = ['family', 'order', 'genus'] as const;
 

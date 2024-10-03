@@ -1,7 +1,8 @@
 import { ReactNode, useEffect, useState } from "react";
-import { CatalogFruitItem, FRUIT_GROUPING_PROPS, FruitGroupingProps } from "../App"
-import { List, ListItem } from "./List"
-import { Table, TableHeaderRow, TableRow, TableRowGroupHeader } from "./Table";
+import { CatalogFruitItem, FRUIT_GROUPING_PROPS, FruitGroupingProps } from "../../App"
+import { List, ListItem } from "../list/List"
+import { Table, TableHeaderRow, TableRow, TableRowGroupHeader } from "../table/Table"
+import './Catalog.css'
 
 const COLUMN_KEYS = ['name', 'family', 'order', 'genus'];
 const COLUMN_HEADERS = {
@@ -20,8 +21,8 @@ function capitalize(str: string) {
 type GroupedItems = Record<string, CatalogFruitItem[]>;
 
 function groupItems(items: CatalogFruitItem[], grouping: FruitGroupingProps) {
-    
-    const uniqueGroups = [...(new Set(items.map(item => item[grouping])))]; 
+
+    const uniqueGroups = [...(new Set(items.map(item => item[grouping])))];
 
     const groupedItems = uniqueGroups.reduce((acc, group) => {
         const groupItems = items.filter(item => item[grouping] === group);
@@ -59,23 +60,25 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
 
     let catalogOutput: ReactNode;
 
-    const addToJarButton = (items: CatalogFruitItem[], group = false) => (
-        group 
-            ? <button onClick={() => onPickItems(items)}>Add {items.length} fruit to Jar</button>
+    const addToJarButton = (items: CatalogFruitItem[], groupName: string | null = null) => (
+        groupName
+            ? <button onClick={() => onPickItems(items)}>
+                Add all {groupName} ({items.length} fruit) to Jar
+            </button>
             : <button onClick={() => onPickItems(items)}>Add to Jar</button>
-        )
+    )
 
     if (viewMode === 'list' && isGroupedItems(displayItems)) {
 
         catalogOutput = <List className="catalog">
-            {Object.entries<CatalogFruitItem[]>(displayItems).map(([group, groupItems]) => 
+            {Object.entries<CatalogFruitItem[]>(displayItems).map(([group, groupItems]) =>
                 <ListItem key={group}>
                     {group}
-                    {addToJarButton(groupItems, true)}
+                    {addToJarButton(groupItems, group)}
                     <List className="catalog-group">
-                        {groupItems.map(item => 
+                        {groupItems.map(item =>
                             <ListItem key={item.id}>
-                                {item.name} ({item.nutritions.calories}) 
+                                {item.name} ({item.nutritions.calories})
                                 {addToJarButton([item])}
                             </ListItem>
                         )}
@@ -83,13 +86,13 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
                 </ListItem>
             )}
         </List>
-        
+
     } else if (viewMode === 'list' && !isGroupedItems(displayItems)) {
 
         catalogOutput = <List className="catalog">
-            {items.map(item => 
+            {items.map(item =>
                 <ListItem key={item.id}>
-                    {item.name} ({item.nutritions.calories}) 
+                    {item.name} ({item.nutritions.calories})
                     {addToJarButton([item])}
                 </ListItem>
             )}
@@ -105,29 +108,29 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
         />)
 
         for (const [group, groupItems] of Object.entries<CatalogFruitItem[]>(displayItems)) {
-            rows.push(<TableRowGroupHeader 
+            rows.push(<TableRowGroupHeader
                 key={`group-header-${group}`}
-                columnKeys={[...COLUMN_KEYS, 'calories', 'actions']} 
-                groupItem={{ 
-                    name: group, 
-                    actions: () => addToJarButton(groupItems, true)
+                columnKeys={[...COLUMN_KEYS, 'calories', 'actions']}
+                groupItem={{
+                    name: group,
+                    actions: () => addToJarButton(groupItems, group)
                 }}
             />)
 
             for (const item of groupItems) {
-                rows.push(<TableRow 
-                    key={item.id} 
-                    item={item} 
+                rows.push(<TableRow
+                    key={item.id}
+                    item={item}
                     columnKeys={[
-                        ...COLUMN_KEYS, 
+                        ...COLUMN_KEYS,
                         () => item.nutritions.calories,
                         () => addToJarButton([item])
-                    ]} 
+                    ]}
                     idKey='id'
                 />)
             }
         }
-        
+
         catalogOutput = <Table>{rows}</Table>
     } else {
         const rows: ReactNode[] = [];
@@ -139,11 +142,11 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
         />)
 
         for (const item of displayItems as CatalogFruitItem[]) {
-            rows.push(<TableRow 
+            rows.push(<TableRow
                 key={`row-${item.id}`}
-                item={item} 
+                item={item}
                 columnKeys={[
-                    ...COLUMN_KEYS, 
+                    ...COLUMN_KEYS,
                     () => item.nutritions.calories,
                     () => addToJarButton([item])
                 ]}
@@ -152,42 +155,42 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
         }
         catalogOutput = <Table>{rows}</Table>
     }
-    
+
     return <>
-        <label>
-            Group by:&nbsp;
-            <select 
-                name="grouping" 
-                value={grouping} 
-                onChange={(e) => 
-                    setGrouping(e.target.value as FruitGroupingProps | 'none')}
-            >
-                <option value="none">None</option>
-                {FRUIT_GROUPING_PROPS.map(p => 
-                    <option value={p} key={p}>{capitalize(p)}</option>
-                )}
-            </select>
-        </label>
-        <div>
-            View as:&nbsp;
-            <label>    
-                List 
-                <input 
-                    type="radio" 
-                    name="view" 
-                    value="list" 
+        <div className="catalog-controls">
+            <label>
+                <span>Group by:&nbsp;</span>
+                <select
+                    name="grouping"
+                    value={grouping}
+                    onChange={(e) =>
+                        setGrouping(e.target.value as FruitGroupingProps | 'none')}
+                >
+                    <option value="none">None</option>
+                    {FRUIT_GROUPING_PROPS.map(p =>
+                        <option value={p} key={p}>{capitalize(p)}</option>
+                    )}
+                </select>
+            </label>
+            <span>View as:&nbsp;</span>
+            <label>
+                <span>List</span>
+                <input
+                    type="radio"
+                    name="view"
+                    value="list"
                     checked={viewMode === 'list'}
                     onChange={(e) => setViewMode(e.target.value as 'list' | 'table')}
                 />
             </label>
             &nbsp;
             <label>
-                Table
-                <input 
+                <span>Table</span>
+                <input
                     type="radio"
                     name="view"
                     value="table"
-                    checked={viewMode === 'table'} 
+                    checked={viewMode === 'table'}
                     onChange={(e) => setViewMode(e.target.value as 'list' | 'table')}
                 />
             </label>
