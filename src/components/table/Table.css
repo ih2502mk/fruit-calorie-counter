@@ -9,6 +9,10 @@ table th {
     text-align: left;
 }
 
+table th, table td {
+    padding: 2px 0.6rem;
+}
+
 table tr {
     border-bottom: 1px solid #eee;
 }
@@ -20,4 +24,24 @@ table tr:first-child {
 
 table tr:last-child {
     border-bottom: none;
+}
+
+table tr:not(:first-child):hover {
+    background-color: rgb(220, 239, 251);
+}
+
+table tr td:last-child {
+    text-align: right;
+}
+
+table tr.group-row {
+    background-color: rgb(226, 236, 242);
+}
+
+table:has(tr.group-row) tr:not(.group-row) td:first-child {
+    padding-left: 1.2rem;
+}
+
+table button {
+    white-space: nowrap;
 }

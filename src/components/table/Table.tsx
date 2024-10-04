@@ -77,5 +77,5 @@ export function TableRowGroupHeader({columnKeys, groupItem}: TableRowGroupHeader
         <td key={`group-header-${groupItem.name}`} colSpan={span}>{groupItem.name}</td>, 
         ...cells
     ];
-    return <tr>{cells}</tr>
+    return <tr className="group-row">{cells}</tr>
 }

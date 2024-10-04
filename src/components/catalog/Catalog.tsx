@@ -73,6 +73,9 @@ export function Catalog({ items, onPickItems }: CatalogProps) {
         catalogOutput = <List className="catalog">
             {Object.entries<CatalogFruitItem[]>(displayItems).map(([group, groupItems]) =>
                 <ListItem key={group}>
+                    <label className="collapse-control">
+                        <input type="checkbox" defaultChecked={true} />
+                    </label>
                     {group}
                     {addToJarButton(groupItems, group)}
                     <List className="catalog-group">

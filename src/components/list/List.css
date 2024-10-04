@@ -24,7 +24,6 @@ ul>li li:first-child {
 }
 
 ul li:has(.catalog-group) {
-    padding: 0.3rem 0.3rem 0 1.2rem;
     font-weight: bold;
 }
 
@@ -39,9 +38,10 @@ ul li:not(:has(.catalog-group:hover)):hover {
 
 ul>li>ul {
     margin-top: 0.3rem;
-    padding-left: 0;
     margin-left: -1.2rem;
     margin-right: -0.3rem;
+    margin-bottom: -0.3rem;
+    padding-left: 0;
     width: calc(100% + 1.2rem + 0.3rem);
     list-style: none;
     flex-basis: calc(100% + 1.2rem + 0.3rem);
